@@ -1,0 +1,28 @@
+[
+  {
+    "prompt": "a red fox in deep snow, cinematic lighting",
+    "provider": "gemini",
+    "model": "gemini-2.5-flash-image",
+    "size": "16:9",
+    "output": {
+      "path": "output/fox_gemini.png",
+      "width": 1280,
+      "height": 720,
+      "crop": "center",
+      "format": "png"
+    }
+  },
+  {
+    "prompt": "a snowy owl on a birch branch at dusk",
+    "provider": "gemini",
+    "model": "imagen-4.0-generate-001",
+    "size": "1:1",
+    "output": {
+      "path": "output/owl_gemini.jpg",
+      "width": 512,
+      "height": 512,
+      "crop": "center",
+      "format": "jpg"
+    }
+  }
+]

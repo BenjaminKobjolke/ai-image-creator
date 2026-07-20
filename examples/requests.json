@@ -1,0 +1,26 @@
+[
+  {
+    "prompt": "a red fox in deep snow, cinematic lighting",
+    "model": "gpt-image-1",
+    "size": "1024x1024",
+    "output": {
+      "path": "output/fox.png",
+      "width": 800,
+      "height": 600,
+      "crop": "center",
+      "format": "png"
+    }
+  },
+  {
+    "prompt": "a snowy owl on a birch branch at dusk",
+    "model": "dall-e-3",
+    "size": "1024x1024",
+    "output": {
+      "path": "output/owl.jpg",
+      "width": 512,
+      "height": 512,
+      "crop": "stretch",
+      "format": "jpg"
+    }
+  }
+]
