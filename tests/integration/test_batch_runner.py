@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+from pathlib import Path
 
 from PIL import Image
 
@@ -41,7 +42,7 @@ def _dims(path: str) -> tuple[int, int]:
         return img.size
 
 
-def test_batch_writes_files_at_output_size(tmp_path) -> None:
+def test_batch_writes_files_at_output_size(tmp_path: Path) -> None:
     out_a = tmp_path / "a.png"
     out_b = tmp_path / "b.png"
     requests = [
@@ -65,7 +66,7 @@ def test_batch_writes_files_at_output_size(tmp_path) -> None:
     assert _dims(str(out_b)) == (300, 300)
 
 
-def test_multiple_images_get_distinct_paths(tmp_path) -> None:
+def test_multiple_images_get_distinct_paths(tmp_path: Path) -> None:
     out = tmp_path / "img.png"
     request = ImageRequest(prompt="fox", n=3, output=OutputSpec(path=str(out)))
 

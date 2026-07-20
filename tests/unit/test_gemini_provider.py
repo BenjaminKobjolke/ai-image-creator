@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
@@ -56,6 +57,30 @@ def test_imagen_extracts_image_bytes() -> None:
 
     assert images[0].data == raw
     assert images[0].source_size == "16:9"
+
+
+def test_reference_images_added_as_content_parts(tmp_path: Path) -> None:
+    ref1 = tmp_path / "a.png"
+    ref2 = tmp_path / "b.png"
+    ref1.write_bytes(b"\x89PNG a")
+    ref2.write_bytes(b"\x89PNG b")
+    client = MagicMock(spec=genai.Client)
+    client.models.generate_content.return_value = _content_response(b"edited")
+
+    GeminiProvider(client).generate(
+        ImageRequest(
+            prompt="an icon",
+            provider="gemini",
+            model="gemini-2.5-flash-image",
+            reference_images=[str(ref1), str(ref2)],
+        )
+    )
+
+    _, kwargs = client.models.generate_content.call_args
+    contents = kwargs["contents"]
+    # prompt + one part per reference image
+    assert contents[0] == "an icon"
+    assert len(contents) == 3
 
 
 def test_no_image_data_raises() -> None:

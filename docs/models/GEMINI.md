@@ -54,6 +54,14 @@ To add another Gemini/Imagen model: add its id constant + valid sizes to
 `GeminiProvider` (constructor), so tests pass a `MagicMock(spec=genai.Client)` — no
 network in unit tests.
 
+### Reference images (image-to-image)
+
+Only `gemini-2.5-flash-image` accepts references. When `reference_images` is set,
+`generate_content` is called with `contents=[prompt, Part, ...]`, one
+`types.Part.from_bytes(data, mime_type)` per file (mime guessed via stdlib
+`mimetypes`, default `image/png`). `imagen-*` (`generate_images`) is text-only and
+the model layer rejects refs on it before any call.
+
 ## Response normalization
 
 Both shapes are normalized to raw bytes (`GeneratedImage.data`):

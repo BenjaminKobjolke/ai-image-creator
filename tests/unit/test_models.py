@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+from pathlib import Path
 from pydantic import ValidationError
 
 from ai_image_creator import constants
@@ -63,3 +64,49 @@ def test_output_defaults() -> None:
 def test_empty_prompt_rejected() -> None:
     with pytest.raises(ValidationError):
         ImageRequest(prompt="")
+
+
+def test_reference_images_accepted_on_capable_model(tmp_path: Path) -> None:
+    ref = tmp_path / "ref.png"
+    ref.write_bytes(b"\x89PNG fake")
+    req = ImageRequest(prompt="a fox", reference_images=[str(ref)])
+    assert req.reference_images == [str(ref)]
+
+
+def test_reference_images_accepted_on_gemini_flash(tmp_path: Path) -> None:
+    ref = tmp_path / "ref.png"
+    ref.write_bytes(b"\x89PNG fake")
+    req = ImageRequest(
+        prompt="a fox",
+        provider="gemini",
+        model=constants.MODEL_GEMINI_25_FLASH_IMAGE,
+        reference_images=[str(ref)],
+    )
+    assert req.reference_images == [str(ref)]
+
+
+def test_reference_images_rejected_on_incapable_model(tmp_path: Path) -> None:
+    ref = tmp_path / "ref.png"
+    ref.write_bytes(b"\x89PNG fake")
+    with pytest.raises(ValidationError, match="reference_images"):
+        ImageRequest(prompt="a fox", model=constants.MODEL_DALL_E_3, reference_images=[str(ref)])
+
+
+def test_reference_images_missing_file_rejected() -> None:
+    with pytest.raises(ValidationError, match="not found"):
+        ImageRequest(prompt="a fox", reference_images=["does/not/exist.png"])
+
+
+def test_reference_images_empty_list_normalizes_to_none() -> None:
+    req = ImageRequest(prompt="a fox", reference_images=[])
+    assert req.reference_images is None
+
+
+def test_background_transparent_accepted() -> None:
+    req = ImageRequest(prompt="an icon", background="transparent")
+    assert req.background == "transparent"
+
+
+def test_background_invalid_rejected() -> None:
+    with pytest.raises(ValidationError, match="background"):
+        ImageRequest(prompt="an icon", background="see-through")

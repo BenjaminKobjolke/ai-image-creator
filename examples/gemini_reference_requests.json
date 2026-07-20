@@ -1,0 +1,20 @@
+[
+  {
+    "prompt": "a new icon, flat minimal style matching the reference icons, single subject, transparent background. The icon is for a calculator that just lets you type text to get the results. Like 5 +5 = 10.",
+    "provider": "gemini",
+    "model": "gemini-2.5-flash-image",
+    "size": "1:1",
+    "reference_images": [
+      "examples/media/icon_01.png",
+      "examples/media/icon_02.png",
+      "examples/media/icon_03.png"
+    ],
+    "output": {
+      "path": "output/new_icon_gemini.png",
+      "width": 512,
+      "height": 512,
+      "crop": "center",
+      "format": "png"
+    }
+  }
+]

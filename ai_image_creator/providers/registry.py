@@ -32,10 +32,15 @@ def build_provider(name: str, settings: Settings) -> ImageProvider:
                 "(put it in .env, the environment, or pass --api-key)"
             )
         # Imported here so the SDK is only needed when the provider is used.
+        import logging
+
         from google import genai
 
         from ai_image_creator.providers.gemini_provider import GeminiProvider
 
+        # We pass the key explicitly, so the SDK's env scan (which warns when both
+        # GOOGLE_API_KEY and GEMINI_API_KEY exist) is irrelevant noise here. Mute it.
+        logging.getLogger("google_genai._api_client").setLevel(logging.ERROR)
         return GeminiProvider(genai.Client(api_key=settings.gemini_api_key))
 
     known = ", ".join((constants.PROVIDER_OPENAI, constants.PROVIDER_GEMINI))

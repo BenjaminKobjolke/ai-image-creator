@@ -10,6 +10,7 @@ Two size concepts are kept deliberately separate:
 from __future__ import annotations
 
 from enum import Enum
+from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -58,7 +59,34 @@ class ImageRequest(BaseModel):
     size: str | None = None
     n: int = Field(default=1, ge=1)
     quality: str | None = None
+    background: str | None = None
+    reference_images: list[str] | None = None
     output: OutputSpec | None = None
+
+    @model_validator(mode="after")
+    def _validate_background(self) -> "ImageRequest":
+        if self.background is not None and self.background not in constants.VALID_BACKGROUNDS:
+            raise ValueError(
+                f"background {self.background!r} is invalid; "
+                f"valid values: {', '.join(constants.VALID_BACKGROUNDS)}"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def _validate_reference_images(self) -> "ImageRequest":
+        # Empty list means "no references" — normalize so downstream branches on None.
+        if not self.reference_images:
+            object.__setattr__(self, "reference_images", None)
+            return self
+        if self.model not in constants.REFERENCE_CAPABLE_MODELS:
+            raise ValueError(
+                f"reference_images not supported by model {self.model!r}; "
+                f"capable models: {', '.join(sorted(constants.REFERENCE_CAPABLE_MODELS))}"
+            )
+        for path in self.reference_images:
+            if not Path(path).is_file():
+                raise ValueError(f"reference image not found: {path!r}")
+        return self
 
     @model_validator(mode="after")
     def _resolve_and_validate_size(self) -> "ImageRequest":

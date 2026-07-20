@@ -1,0 +1,21 @@
+[
+  {
+    "prompt": "Pure white (#FFFFFF) monochrome minimal line icon, flat, matching the reference icons' style. Centered symbol: a blinking text-cursor bar '|' next to an equals sign '=', suggesting type-to-calculate. Bold rounded strokes, pure white only, no dark colors, generous padding, symbol fills about 70% of the frame, vertically and horizontally centered, square composition. Transparent background. No other text, no numbers.",
+    "provider": "openai",
+    "model": "gpt-image-1",
+    "size": "1024x1024",
+    "background": "transparent",
+    "reference_images": [
+      "examples/media/icon_01.png",
+      "examples/media/icon_02.png",
+      "examples/media/icon_03.png"
+    ],
+    "output": {
+      "path": "output/new_icon_openai.png",
+      "width": 512,
+      "height": 512,
+      "crop": "center",
+      "format": "png"
+    }
+  }
+]

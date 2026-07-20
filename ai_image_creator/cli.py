@@ -67,6 +67,8 @@ def _build_requests(args: argparse.Namespace) -> list[ImageRequest]:
         size=args.size,
         n=args.n,
         quality=args.quality,
+        background=args.background,
+        reference_images=args.reference,
         output=output,
     )
     return [request]
@@ -88,6 +90,20 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--size", default=None, help="Provider size, e.g. 1024x1024.")
     parser.add_argument("--n", type=int, default=1, help="Number of images to generate.")
     parser.add_argument("--quality", default=None)
+    parser.add_argument(
+        "--background",
+        default=None,
+        choices=constants.VALID_BACKGROUNDS,
+        help="OpenAI only: 'transparent' for a cut-out image (needs png/webp output).",
+    )
+    parser.add_argument(
+        "--reference",
+        action="append",
+        default=None,
+        metavar="PATH",
+        help="Reference image path for image-to-image (repeatable). "
+        "Capable models: gpt-image-2, gpt-image-1, gemini-2.5-flash-image.",
+    )
     parser.add_argument(
         "--api-key", default=None, help="Overrides OPENAI_API_KEY and GEMINI_API_KEY."
     )

@@ -35,7 +35,48 @@ rejected). CLI flags map 1:1 to these fields for single-request mode.
 | `size`     | string  | no       | model default  | Must be valid for the model, else rejected. OpenAI = pixels (`1024x1024`); Gemini = aspect ratio (`16:9`). |
 | `n`        | integer | no       | `1`            | Images per request; `>= 1`. |
 | `quality`  | string  | no       | provider default | OpenAI only (e.g. `high` for gpt-image-1). Ignored by Gemini. |
+| `background` | string | no       | provider default | OpenAI only: `transparent`, `opaque`, or `auto`. `transparent` requires **`gpt-image-1`** (`gpt-image-2` rejects it) and a png/webp `output.format`. Ignored by Gemini. |
+| `reference_images` | list of string | no | none | Image paths used as references (image-to-image). Only for capable models (below); each path must exist or the request is rejected. |
 | `output`   | object  | no       | save raw as-is | Post-processing block (below). |
+
+### Reference images (image-to-image)
+
+Pass one or more existing images as references to guide generation. Supported only
+by these models (any other model + `reference_images` is rejected at validation):
+
+| provider | capable models |
+|----------|----------------|
+| `openai` | `gpt-image-2` (default), `gpt-image-1` — via the images **edit** endpoint |
+| `gemini` | `gemini-2.5-flash-image` — refs added as `generate_content` image parts |
+
+`dall-e-3` and the `imagen-*` models do **not** accept references. Paths are
+validated at the boundary (must be existing files). Add `"background":
+"transparent"` with model `gpt-image-1` for a cut-out icon — keep `output.format`
+at `png`. Example:
+
+```json
+[
+  {
+    "prompt": "app icon, flat style matching the references",
+    "model": "gpt-image-2",
+    "size": "1024x1024",
+    "reference_images": [
+      "examples/media/icon_01.png",
+      "examples/media/icon_02.png",
+      "examples/media/icon_03.png"
+    ],
+    "output": { "path": "output/new_icon.png", "width": 512, "height": 512 }
+  }
+]
+```
+
+CLI equivalent uses a repeatable `--reference`:
+
+```bat
+uv run ai-image-creator --prompt "app icon, flat, matching the references" ^
+  --reference examples/media/icon_01.png --reference examples/media/icon_02.png ^
+  --output output/new_icon.png --width 512 --height 512
+```
 
 ### `provider` × `model`
 

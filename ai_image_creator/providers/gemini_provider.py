@@ -12,6 +12,9 @@ provider-independent Pillow step (OutputSpec), same as every provider.
 
 from __future__ import annotations
 
+import mimetypes
+from pathlib import Path
+
 from google import genai
 from google.genai import types
 
@@ -56,15 +59,25 @@ class GeminiProvider:
             response_modalities=["IMAGE"],
             image_config=types.ImageConfig(aspect_ratio=size),
         )
+        # ponytail: SDK's contents param is an invariant list union, so a narrower
+        # [str, Part, ...] list is rejected by mypy though correct at runtime.
+        contents: list[str | types.Part] = [request.prompt]
+        if request.reference_images:
+            contents.extend(self._image_part(p) for p in request.reference_images)
         images: list[GeneratedImage] = []
         for _ in range(request.n):
             response = self._client.models.generate_content(
                 model=request.model,
-                contents=request.prompt,
+                contents=contents,  # type: ignore[arg-type]
                 config=config,
             )
             images.append(GeneratedImage(data=self._content_bytes(response), source_size=size))
         return images
+
+    @staticmethod
+    def _image_part(path: str) -> types.Part:
+        mime = mimetypes.guess_type(path)[0] or "image/png"
+        return types.Part.from_bytes(data=Path(path).read_bytes(), mime_type=mime)
 
     @staticmethod
     def _imagen_bytes(item: object) -> bytes:

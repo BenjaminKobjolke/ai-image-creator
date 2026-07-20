@@ -47,9 +47,21 @@ per request via JSON `model` or CLI `--model`.
 | `size`   | `request.size`           | resolved/validated before the call      |
 | `n`      | `request.n`              | images per request                      |
 | `quality`| `request.quality`        | only sent when set (e.g. `high`)        |
+| `background`| `request.background`  | only sent when set; `transparent` needs `gpt-image-1` |
 
 The `OpenAI` client is **injected** into `OpenAIProvider` (constructor), so tests
 pass a `MagicMock(spec=OpenAI)` — no network in unit tests.
+
+### Reference images (edit path)
+
+When a request carries `reference_images` (list of file paths), the provider routes
+to `client.images.edit(model, image=[...], prompt, size, n, quality)` instead of
+`generate`. The files are opened binary and closed via `contextlib.ExitStack`. Only
+`gpt-image-2` / `gpt-image-1` are reference-capable (`constants.REFERENCE_CAPABLE_MODELS`);
+the model layer rejects refs on `dall-e-*` before any call. The edit response uses
+the same `b64_json` shape, so normalization is shared with `generate`. Both paths
+build their args via `_base_kwargs`, so `quality` and `background` are forwarded to
+edit too.
 
 ## Response normalization
 

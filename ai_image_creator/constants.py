@@ -28,6 +28,10 @@ MODEL_IMAGEN_4_FAST = "imagen-4.0-fast-generate-001"
 # Special "let the provider decide" size.
 SIZE_AUTO = "auto"
 
+# OpenAI-only `background` values (gpt-image-*). Ignored by Gemini. Transparency
+# only survives if the final output.format keeps alpha (png/webp, not jpg).
+VALID_BACKGROUNDS: tuple[str, ...] = ("transparent", "opaque", "auto")
+
 # gpt-image-1 / gpt-image-2 share the same size family.
 _GPT_IMAGE_SIZES = ("1024x1024", "1024x1536", "1536x1024", SIZE_AUTO)
 
@@ -46,6 +50,12 @@ VALID_SIZES: dict[str, tuple[str, ...]] = {
     MODEL_IMAGEN_4_ULTRA: _GEMINI_ASPECT_RATIOS,
     MODEL_IMAGEN_4_FAST: _GEMINI_ASPECT_RATIOS,
 }
+
+# Models that accept reference images (image-to-image / edit). OpenAI gpt-image-*
+# via images.edit; Gemini flash via generate_content. dall-e-3 and imagen-* cannot.
+REFERENCE_CAPABLE_MODELS: frozenset[str] = frozenset(
+    {MODEL_GPT_IMAGE_2, MODEL_GPT_IMAGE_1, MODEL_GEMINI_25_FLASH_IMAGE}
+)
 
 # Default generation size per model (used when a request omits `size`).
 DEFAULT_SIZE: dict[str, str] = {
