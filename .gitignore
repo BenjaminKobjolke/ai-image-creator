@@ -220,3 +220,4 @@ __marimo__/
 # Project-specific
 output/
 .claude/scheduled_tasks.lock
+claude-plans
